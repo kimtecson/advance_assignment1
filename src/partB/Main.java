@@ -58,25 +58,53 @@ public class Main {
 
         // Build the order
         while (true) {
-            printCatalog(catalog);
-            System.out.print("Select item # (0 to finish): ");
-            int pick = readInt(sc);
-            if (pick == 0) break;
-            if (pick < 1 || pick > catalog.length) {
+            boolean hasItems = !order.isEmpty();
+            printCatalog(catalog, hasItems);
+
+            System.out.print("Select item # (0-5)" + (hasItems ? ", C to cancel" : "") + ": ");
+            String pick = sc.nextLine().trim();
+
+            if (pick.equalsIgnoreCase("c")) {
+                if (hasItems) {
+                    order.cancel();
+                    System.out.println("Order canceled.");
+                    return; // back to main menu
+                } else {
+                    System.out.println("Nothing to cancel yet.");
+                    continue;
+                }
+            }
+            if ("0".equals(pick)) break;
+
+            int idx;
+            try {
+                idx = Integer.parseInt(pick) - 1;
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number" + (hasItems ? " or 'C'" : "") + ".");
+                continue;
+            }
+            if (idx < 0 || idx >= catalog.length) {
                 System.out.println("Invalid selection.");
                 continue;
             }
 
-            MenuItem item = catalog[pick - 1];
-            System.out.print("Quantity: ");
-            int qty = readInt(sc);
+            MenuItem item = catalog[idx];
+            System.out.printf("How many %s would you like to buy: ", item.getName().toLowerCase());
+            String q = sc.nextLine().trim();
+            int qty;
+            try {
+                qty = Integer.parseInt(q);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid quantity.");
+                continue;
+            }
             if (qty <= 0) {
-                System.out.println("Quantity must be > 0.");
+                System.out.println("Quantity must be greater than 0.");
                 continue;
             }
 
             try {
-                order.addItem(item, qty);
+                order.addItem(item, qty); // your addItem enforces stock/validation
                 System.out.printf("Added: %s x%d%n", item.getName(), qty);
             } catch (IllegalArgumentException ex) {
                 System.out.println(ex.getMessage());
@@ -88,24 +116,28 @@ public class Main {
             return;
         }
 
-        // Show receipt and total
+        // Receipt + payment
         printReceipt(order);
         double total = order.getTotal();
-
-        // --- Payment (single-tender, reject if insufficient) ---
-     // Single-tender; if short, cancel the order (put stock back) and return to menu
-        System.out.printf("Enter cash (TOTAL $%.2f): ", total);
+        System.out.printf("Enter cash (TOTAL $%.2f) or 'C' to cancel: ", total);
         String s = sc.nextLine().trim();
+
+        if (s.equalsIgnoreCase("c")) {
+            order.cancel();
+            System.out.println("Order canceled at payment. Items returned to stock.");
+            return;
+        }
+
         try {
             double paid = Double.parseDouble(s);
             if (paid < total) {
                 System.out.println("Insufficient payment. Payment rejected. Order canceled.");
-                order.cancel();             // <-- put stock back
-                return;                     // back to main menu for a new transaction
+                order.cancel(); // put stock back
+                return;
             }
             Payment pmt = new Payment(paid);
             double change = pmt.change(total);
-            order.finalizeOrder();          // no-op, but keeps call sites consistent
+            order.finalizeOrder(); // no-op if you already deducted on add
             System.out.printf("Change: $%.2f%n", change);
             System.out.println("Payment successful. Thank you!");
         } catch (NumberFormatException e) {
@@ -113,6 +145,7 @@ public class Main {
             order.cancel();
         }
     }
+
 
     
     private static void showSalesReport(Product... products) {
@@ -171,7 +204,12 @@ public class Main {
             String reg   = (net != list) ? String.format(" (reg $%.2f)", list) : "";
             System.out.printf("%d) %-26s  $%.2f%s%s%n", (i + 1), mi.getName(), net, badge, reg);
         }
-        System.out.println("0) Done");
+        System.out.println("0) Done/Cancel");
+    }
+    
+    private static void printCatalog(MenuItem[] catalog, boolean showCancel) {
+        printCatalog(catalog);              // print the menu
+        if (showCancel) System.out.println("C) Cancel order");
     }
 
     private static void printReceipt(Order order) {

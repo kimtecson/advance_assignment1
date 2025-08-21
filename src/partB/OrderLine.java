@@ -1,5 +1,9 @@
 package partB;
 
+/** One entry in an order (single menu item + quantity).
+ * Multiple item orders are just multiple lines for simple pricing and stock updates.
+ * Pricing uses the item's discount-aware totalPrice(). */
+
 public class OrderLine {
     private final MenuItem item;
     private final int quantity;

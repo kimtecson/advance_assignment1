@@ -1,8 +1,11 @@
 package partB;
 
+/**
+ Central place for configurable discount.
+ Fixed the discount to $1.
+ */
 public class Discount {
-	private Discount() {} // prevent instantiation
+	private Discount() {}
 
-    /** Fixed $1 off per combo unit. Change here if policy changes. */
     public static final double COMBO_DISCOUNT = 1.00;
 }
