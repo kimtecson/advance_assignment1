@@ -16,7 +16,7 @@ public class Order {
     public void addItem(MenuItem item, int qty) {
         if (qty <= 0) throw new IllegalArgumentException("Quantity must be > 0");
         if (!item.isAvailable(qty))
-            throw new IllegalArgumentException("Insufficient stock for " + item.getName());
+            throw new IllegalArgumentException("Sorry! Not enough " + item.getName() + "left. Please bake more.");
         item.deductStock(qty);           // <-- commit now
         lines.add(new OrderLine(item, qty));
     }

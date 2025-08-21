@@ -9,7 +9,7 @@ public class Product implements MenuItem {
     private double sales;
 
 
-    // Made-to-order (no stock tracking)
+    // Constructor Made-to-order (no stock tracking)
     public Product(String name, double price) {
         if (price <= 0) throw new IllegalArgumentException("price must be > 0");
         this.name = name;
@@ -17,7 +17,7 @@ public class Product implements MenuItem {
         this.stockManaged = false;
     }
 
-    // Stock-managed (e.g., Muffin)
+    // Constructor Stock-managed (e.g., Muffin)
     public Product(String name, double price, int initialStock) {
         if (price <= 0) throw new IllegalArgumentException("price must be > 0");
         if (initialStock < 0) throw new IllegalArgumentException("initial stock must be >= 0");
@@ -48,7 +48,7 @@ public class Product implements MenuItem {
 
     @Override
     public boolean isAvailable(int qty) {
-        if (qty < 0) return false;
+        if (qty <= 0) return false;
         return !stockManaged || qty <= stock; // made-to-order: always available
     }
 
@@ -72,14 +72,7 @@ public class Product implements MenuItem {
         if (qtySold < 0) qtySold = 0;
         if (sales   < 0) sales   = 0.0;
     }
-    
-    // --- test/admin helpers (unchanged behavior) ---
-    public boolean order(int qty) {                // used by your JUnit
-        if (!isAvailable(qty)) return false;
-        deductStock(qty);
-        return true;
-    }
-    
+
     
     /** Fixed restock: only for the Muffin product, adds 25 units. */
     public void replenishMuffin() {

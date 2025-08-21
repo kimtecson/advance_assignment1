@@ -6,9 +6,9 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         // Seed items (no codes, no inventory class)
-        Product muffin = new Product("Muffin", 4.50, 50);
-        Product coffee = new Product("Coffee", 5.00);
-        Product shake  = new Product("Shake", 6.00);
+        Product muffin = new Product("Muffin", 2.00, 25);
+        Product coffee = new Product("Coffee", 2.50);
+        Product shake  = new Product("Shake", 3.00);
 
         // Fixed $1 off combo (via Discounts.COMBO_DISCOUNT)
         Combo coffeeMuffin = new Combo("Coffee + Muffin Combo", Map.of(coffee, 1, muffin, 1));
@@ -33,7 +33,7 @@ public class Main {
             	case "b" -> {
             		try {
             			muffin.replenishMuffin(); // +25 muffins
-            			System.out.printf("Baked 25 muffins. Stock is now %d.%n", muffin.getStock());
+            			System.out.printf("Ok, 25 muffins added. Total muffins in cafe is now %d.%n", muffin.getStock());
             		} catch (RuntimeException ex) {
             			System.out.println(ex.getMessage());
             		}
@@ -118,11 +118,23 @@ public class Main {
     private static void showSalesReport(Product... products) {
         System.out.println("\n--- Sales report ---");
         double total = 0.0;
+
+        // Find Muffin to show unsold count of muffins
+        Product muffin = null;
+        for (Product p : products) {
+            if ("Muffin".equalsIgnoreCase(p.getName())) {
+                muffin = p;
+                break;
+            }
+        }
+        if (muffin != null && muffin.isStockManaged()) {
+            System.out.printf("Unsold Muffins: %d%n%n", muffin.getStock());
+        } 
         for (Product p : products) {
             double revenue = p.getQtySold() * p.getPrice();
             total += revenue;
-            System.out.printf("%-12s  sold %3d  revenue $%.2f%n",
-                    p.getName(), p.getQtySold(), revenue);
+                System.out.printf("%-12s  revenue $%6.2f  sold %3d%n",
+                        p.getName(), revenue, p.getQtySold());
         }
         System.out.printf("TOTAL REVENUE: $%.2f%n%n", total);
     }
@@ -160,14 +172,6 @@ public class Main {
             System.out.printf("%d) %-26s  $%.2f%s%s%n", (i + 1), mi.getName(), net, badge, reg);
         }
         System.out.println("0) Done");
-    }
-
-    private static void printStock(Product... products) {
-        System.out.println("\n--- Stock ---");
-        for (Product p : products) {
-            System.out.printf("%-12s  price $%.2f  stock %d  sold %d%n",
-                    p.getName(), p.getPrice(), p.getStock(), p.getQtySold());
-        }
     }
 
     private static void printReceipt(Order order) {
