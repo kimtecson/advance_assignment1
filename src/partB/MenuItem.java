@@ -26,4 +26,7 @@ public interface MenuItem {
 
     /** Reserve/commit stock AFTER successful payment. */
     void deductStock(int qty);
+    
+    /** Undo a previous deduction (used on cancel/failed payment). */
+    void returnStock(int qty);
 }

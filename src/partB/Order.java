@@ -12,9 +12,12 @@ public class Order {
 
     public String getOrderId() { return orderId; }
 
+    /** Deduct stock immediately when the line is added. */
     public void addItem(MenuItem item, int qty) {
+        if (qty <= 0) throw new IllegalArgumentException("Quantity must be > 0");
         if (!item.isAvailable(qty))
             throw new IllegalArgumentException("Insufficient stock for " + item.getName());
+        item.deductStock(qty);           // <-- commit now
         lines.add(new OrderLine(item, qty));
     }
 
@@ -26,12 +29,15 @@ public class Order {
         return sum;
     }
 
-    /** Total equals subtotal since we removed tax. */
     public double getTotal() { return getSubtotal(); }
 
-    /** Commit inventory AFTER successful payment. */
-    public void finalizeOrder() {
-        for (OrderLine l : lines) l.getItem().deductStock(l.getQuantity());
+    /** Nothing to do: we already deducted on add. Kept for API symmetry. */
+    public void finalizeOrder() { /* no-op */ }
+
+    /** Cancel/failed payment: return all stock and clear the cart. */
+    public void cancel() {
+        for (OrderLine l : lines) l.getItem().returnStock(l.getQuantity());
+        lines.clear();
     }
 
     public boolean isEmpty() { return lines.isEmpty(); }

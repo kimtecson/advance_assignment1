@@ -7,8 +7,8 @@ public class Main {
     public static void main(String[] args) {
         // Seed items (no codes, no inventory class)
         Product muffin = new Product("Muffin", 4.50, 50);
-        Product coffee = new Product("Coffee", 5.00, 50);
-        Product shake  = new Product("Shake", 6.00, 50);
+        Product coffee = new Product("Coffee", 5.00);
+        Product shake  = new Product("Shake", 6.00);
 
         // Fixed $1 off combo (via Discounts.COMBO_DISCOUNT)
         Combo coffeeMuffin = new Combo("Coffee + Muffin Combo", Map.of(coffee, 1, muffin, 1));
@@ -93,24 +93,24 @@ public class Main {
         double total = order.getTotal();
 
         // --- Payment (single-tender, reject if insufficient) ---
-        while (true) {
-            System.out.printf("Enter cash (TOTAL $%.2f): ", total);
-            String s = sc.nextLine().trim();
-            try {
-                double paid = Double.parseDouble(s);
-                if (paid < total) {
-                    System.out.println("Insufficient payment. Payment rejected. Please try again.");
-                    continue; // re-prompt for another transaction
-                }
-                Payment pmt = new Payment(paid);
-                double change = pmt.change(total);
-                order.finalizeOrder(); // commit stock
-                System.out.printf("Change: $%.2f%n", change);
-                System.out.println("Payment successful. Thank you!");
-                break; // done
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid amount. Please enter a number.");
+     // Single-tender; if short, cancel the order (put stock back) and return to menu
+        System.out.printf("Enter cash (TOTAL $%.2f): ", total);
+        String s = sc.nextLine().trim();
+        try {
+            double paid = Double.parseDouble(s);
+            if (paid < total) {
+                System.out.println("Insufficient payment. Payment rejected. Order canceled.");
+                order.cancel();             // <-- put stock back
+                return;                     // back to main menu for a new transaction
             }
+            Payment pmt = new Payment(paid);
+            double change = pmt.change(total);
+            order.finalizeOrder();          // no-op, but keeps call sites consistent
+            System.out.printf("Change: $%.2f%n", change);
+            System.out.println("Payment successful. Thank you!");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid amount. Order canceled.");
+            order.cancel();
         }
     }
 
