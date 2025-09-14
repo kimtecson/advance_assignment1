@@ -1,8 +1,8 @@
 package partB;
 
 /**
- Central place for configurable discount.
- Fixed the discount to $1.
+ * Central place for configurable discount.
+ * Fixed the discount to $1.
  */
 public class Discount {
 	private Discount() {}

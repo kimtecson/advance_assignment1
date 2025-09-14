@@ -3,14 +3,25 @@ package partB;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Main {
+/**
+ * Console UI for Geek Cafe.
+ * Menu:
+ *  a) Order
+ *  b) Bake muffins
+ *  c) Show sales report
+ *  d) Update prices
+ *  e) Exit
+ *
+ * Scanner is closed exactly once at the end of main.
+ */
+public class GeekCafe {
     public static void main(String[] args) {
-        // Seed items (no codes, no inventory class)
+        // Seed items
         Product muffin = new Product("Muffin", 2.00, 25);
         Product coffee = new Product("Coffee", 2.50);
         Product shake  = new Product("Shake", 3.00);
 
-        // Fixed $1 off combo (via Discounts.COMBO_DISCOUNT)
+        // Fixed $1 off combo
         Combo coffeeMuffin = new Combo("Coffee + Muffin Combo", Map.of(coffee, 1, muffin, 1));
         Combo shakeMuffin = new Combo("Shake + Muffin Combo", Map.of(shake, 1, muffin, 1));
 
@@ -20,7 +31,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         boolean running = true;
         while (running) {
-            System.out.println("\n=== Geek Cafe ===");
+            System.out.println("\n===== Geek Cafe =====");
             System.out.println("a) Order");
             System.out.println("b) Bake muffins");
             System.out.println("c) Show sales report");
@@ -32,7 +43,7 @@ public class Main {
             	case "a" -> handleOrder(sc, catalog);
             	case "b" -> {
             		try {
-            			muffin.replenishMuffin(); // +25 muffins
+            			muffin.replenishMuffin();
             			System.out.printf("Ok, 25 muffins added. Total muffins in cafe is now %d.%n", muffin.getStock());
             		} catch (RuntimeException ex) {
             			System.out.println(ex.getMessage());
@@ -68,7 +79,7 @@ public class Main {
                 if (hasItems) {
                     order.cancel();
                     System.out.println("Order canceled.");
-                    return; // back to main menu
+                    return;
                 } else {
                     System.out.println("Nothing to cancel yet.");
                     continue;
@@ -116,7 +127,7 @@ public class Main {
             return;
         }
 
-        // Receipt + payment
+        // Receipt + payment, single-tender policy: reject if short; re-prompt
         printReceipt(order);
         double total = order.getTotal();
         System.out.printf("Enter cash (TOTAL $%.2f) or 'C' to cancel: ", total);
@@ -137,7 +148,6 @@ public class Main {
             }
             Payment pmt = new Payment(paid);
             double change = pmt.change(total);
-            order.finalizeOrder(); // no-op if you already deducted on add
             System.out.printf("Change: $%.2f%n", change);
             System.out.println("Payment successful. Thank you!");
         } catch (NumberFormatException e) {
@@ -152,7 +162,7 @@ public class Main {
         System.out.println("\n--- Sales report ---");
         double total = 0.0;
 
-        // Find Muffin to show unsold count of muffins
+        // Find Muffin to show unsold number of muffins
         Product muffin = null;
         for (Product p : products) {
             if ("Muffin".equalsIgnoreCase(p.getName())) {
@@ -194,7 +204,7 @@ public class Main {
     }
 
     private static void printCatalog(MenuItem[] catalog) {
-        System.out.println("\n--- Menu ---");
+        System.out.println("\n--------------- Menu ---------------");
         for (int i = 0; i < catalog.length; i++) {
             MenuItem mi = catalog[i];
             double list = mi.getUnitPrice();
@@ -204,7 +214,7 @@ public class Main {
             String reg   = (net != list) ? String.format(" (reg $%.2f)", list) : "";
             System.out.printf("%d) %-26s  $%.2f%s%s%n", (i + 1), mi.getName(), net, badge, reg);
         }
-        System.out.println("0) Done/Cancel");
+        System.out.println("0) Done");
     }
     
     private static void printCatalog(MenuItem[] catalog, boolean showCancel) {
@@ -213,7 +223,7 @@ public class Main {
     }
 
     private static void printReceipt(Order order) {
-        System.out.println("\n=== RECEIPT " + order.getOrderId() + " ===");
+        System.out.println("\n===== RECEIPT " + order.getOrderId() + " =====");
         double subtotal = 0.0;
         double savings = 0.0;
 
@@ -226,7 +236,7 @@ public class Main {
             if (it.getDiscount() > 0) {
                 double s = it.getDiscount() * line.getQuantity();
                 savings += s;
-                System.out.printf("  -> Savings: -$%.2f%n", s);
+                System.out.printf(" Savings: -$%.2f%n", s);
             }
         }
 

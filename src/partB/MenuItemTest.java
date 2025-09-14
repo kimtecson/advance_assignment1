@@ -4,24 +4,34 @@ import static org.junit.Assert.*;
 
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class MenuItemTest {
+	
+	private Product muffin;
+	private Product coffee;
+	private Combo combo1;
+
+	    @Before
+		public void setUp() {
+			muffin = new Product("Muffin", 2.00, 25); // price, initial stock
+			coffee = new Product("Coffee", 2.50);
+			combo1 = new Combo("Coffee + Muffin", Map.of(coffee, 1, muffin, 1));
+		}
 
 	@Test
     public void totalPrice_usesDiscountForCombo() {
-        Product muffin = new Product("Muffin", 2.00, 10);
-        Product coffee = new Product("Coffee", 5.00);
-        Combo combo = new Combo("Coffee + Muffin", Map.of(coffee, 1, muffin, 1));
-        assertEquals(Double.compare(7, combo.getUnitPrice()),0);
-        assertEquals(Double.compare(1, combo.getDiscount()),0);
-        assertEquals(Double.compare(12, combo.totalPrice(2)),0);
+
+        assertEquals(Double.compare(4.5, combo1.getUnitPrice()),0);
+        assertEquals(Double.compare(1, combo1.getDiscount()),0);
+        assertEquals(Double.compare(7, combo1.totalPrice(2)),0);
     }
 
     @Test
     public void totalPrice_forProduct_hasNoDiscount() {
-    	Product muffin = new Product("Muffin", 2.00, 10);
-        MenuItem item = muffin; // upcast to use interface defaults
+
+        MenuItem item = muffin;
 
         // No discount for plain Product
         assertEquals(Double.compare(0, item.getDiscount()),0);

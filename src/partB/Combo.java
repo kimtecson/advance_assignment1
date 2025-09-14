@@ -3,6 +3,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * A fixed price combo made from existing Products.
+ * Price is derived from the sum of component list prices minus a fixed discount.
+ * Stock is virtual: availability depends on component product stocks.
+ */
 public class Combo implements MenuItem {
     private final String name;
     private final Map<Product, Integer> components;
@@ -49,6 +55,7 @@ public class Combo implements MenuItem {
             e.getKey().returnStock(e.getValue() * qty);
     }
 
+    // Helpers for UI/receipt
     public Map<Product,Integer> getComponents() { return components; }
     public double comboPrice() { return netUnitPrice(); }
 }

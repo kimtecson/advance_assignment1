@@ -1,5 +1,11 @@
 package partB;
 
+/**
+ * A single physical product that can have stocks or no stocks
+ * Notes:
+ *  updatePrice() to support price changes.
+ *  replenishMuffin() is a fixed +25 restock and only valid for the Muffin product.
+ */
 public class Product implements MenuItem {
     private final String name;
     private double price;
@@ -9,7 +15,7 @@ public class Product implements MenuItem {
     private double sales;
 
 
-    // Constructor Made-to-order (no stock tracking)
+    // Constructor for products that are always available
     public Product(String name, double price) {
         if (price <= 0) throw new IllegalArgumentException("price must be > 0");
         this.name = name;
@@ -17,7 +23,7 @@ public class Product implements MenuItem {
         this.stockManaged = false;
     }
 
-    // Constructor Stock-managed (e.g., Muffin)
+ // Constructor for products that needs stocks
     public Product(String name, double price, int initialStock) {
         if (price <= 0) throw new IllegalArgumentException("price must be > 0");
         if (initialStock < 0) throw new IllegalArgumentException("initial stock must be >= 0");
@@ -37,7 +43,7 @@ public class Product implements MenuItem {
     public double getSales() { return sales; }
     public boolean isStockManaged() { return stockManaged; }
 
-    /** change product price (must be > 0 and different from current) */
+    // change product price (must be > 0 and different from current)
     public void updatePrice(double newPrice) {
         if (newPrice <= 0) throw new IllegalArgumentException("new price must be > 0");
         double epsilon = 1e-9;
@@ -49,7 +55,7 @@ public class Product implements MenuItem {
     @Override
     public boolean isAvailable(int qty) {
         if (qty <= 0) return false;
-        return !stockManaged || qty <= stock; // made-to-order: always available
+        return !stockManaged || qty <= stock;
     }
 
     @Override
@@ -74,7 +80,7 @@ public class Product implements MenuItem {
     }
 
     
-    /** Fixed restock: only for the Muffin product, adds 25 units. */
+    // Fixed restock: only for the Muffin product, adds 25 units.
     public void replenishMuffin() {
         if (!stockManaged || !"Muffin".equalsIgnoreCase(name)) {
             throw new UnsupportedOperationException("replenishMuffin is only for the Muffin product");

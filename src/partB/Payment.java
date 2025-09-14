@@ -1,5 +1,9 @@
 package partB;
 
+/**
+ * Takes one cash payment and tells you if it’s enough, then calculates the change. 
+ * If not enough, order is cancelled.
+*/
 public class Payment {
     private final double amountTendered;
 

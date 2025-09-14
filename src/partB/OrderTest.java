@@ -16,7 +16,7 @@ public class OrderTest {
 	    @Before
 		public void setUp() {
 			muffin = new Product("Muffin", 2.00, 25); // price, initial stock
-			coffee = new Product("Coffe", 2.50);
+			coffee = new Product("Coffee", 2.50);
 			combo1 = new Combo("Coffee + Muffin", Map.of(coffee, 1, muffin, 1));
 		}
 	
@@ -33,11 +33,8 @@ public class OrderTest {
 
         // subtotal/total uses discount-aware pricing
         double expectedLine = (combo1.getUnitPrice() - Discount.COMBO_DISCOUNT) * 4; // 6.00 * 4
-        assertEquals(expectedLine, order.getSubtotal(), 1e-9);
-        assertEquals(expectedLine, order.getTotal(), 1e-9);
-
-        // finalize is a no-op (already deducted on add)
-        order.finalizeOrder();
+        assertEquals(Double.compare(expectedLine, order.getSubtotal()), 0);
+        assertEquals(Double.compare(expectedLine, order.getTotal()), 0);
         assertEquals(21, muffin.getStock());
     }
 

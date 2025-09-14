@@ -3,6 +3,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A customer's order: a list of OrderLines and helpers for totals.
+ * Simplified order process. Order quantites are deducted when the user add an item and will be returned back when the payment was not finalized.
+ */
 public class Order {
     private static int NEXT = 1;
     private static String nextOrderId() { return "ORD" + (NEXT++); }
@@ -12,7 +16,7 @@ public class Order {
 
     public String getOrderId() { return orderId; }
 
-    /** Deduct stock immediately when the line is added. */
+    // Deduct stock immediately when the line is added.
     public void addItem(MenuItem item, int qty) {
         if (qty <= 0) throw new IllegalArgumentException("Quantity must be > 0");
         if (!item.isAvailable(qty))
@@ -30,9 +34,6 @@ public class Order {
     }
 
     public double getTotal() { return getSubtotal(); }
-
-    /** Nothing to do: we already deducted on add. Kept for API symmetry. */
-    public void finalizeOrder() { /* no-op */ }
 
     // Cancel/failed payment: return all stock and clear the cart. */
     public void cancel() {
